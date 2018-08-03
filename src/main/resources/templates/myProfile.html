@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1000/xhtml">
+<head th:replace="common/header :: common-header" />
+
+<body>
+	<div th:replace="common/header :: navbar"></div>
+
+	<div class="container">
+		<div class="row" style="margin-bottom: -100px;">
+			<div class="col-xs-8">
+				<h2 class="section-headline">
+					<span th:text="${#strings.toUpperCase(user.username) +  ' Profile page'}"></span>
+				</h2>
+			</div>
+		</div>
+		<div class="row"></div>
+		<hr
+			style="position: absolute; width: 90%; height: 6px; background-color: #333; z-index: -1; margin-top: -15px;" />
+
+		<div class="row" style="margin-top: 60px;">
+			<div class="col-xs-12">
+
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs">
+					<li th:classappend="${classActiveEdit}? 'active'"><a
+						href="#tab-1" data-toggle="tab"><span style="color: red;">Edit
+								Profile</span></a></li>
+					<li th:classappend="${classActiveWorkingDetails}? 'active'"><a
+						href="#tab-2" data-toggle="tab"><span style="color: red;">Working
+								details</span></a></li>
+					<li th:classappend="${classActiveImportantDates}? 'active'"><a
+						href="#tab-3" data-toggle="tab"><span style="color: red;">Important
+								Dates</span></a></li>
+					<li th:classappend="${classActiveShipping}? 'active'"><a
+						href="#tab-4" data-toggle="tab"><span style="color: red;">Others</span></a></li>
+				</ul>
+
+				<!-- Tab panels -->
+				<div class="tab-content">
+
+					<!-- Edit user information -->
+					<div class="tab-pane fade col-xs-9" id="tab-1"
+						th:classappend="${classActiveEdit}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+
+									<div class="alert alert-danger" th:if="${incorrectPassword}">
+										<strong>Incorrect Password!</strong> Please enter the correct
+										password for the current user.
+									</div>
+
+									<div class="alert alert-danger" th:if="${needUpdate}">
+										<strong>Incorrect Details !!! </strong><span
+											th:value="${needUpdateValue}"></span>
+									</div>
+
+									<div class="alert alert-success" th:if="${updateSuccess}">
+										<strong>Update Success!</strong>
+									</div>
+
+									<form th:action="@{/updateUserInfo}" method="post">
+										<input type="hidden" name="id" th:value="${user.id}" />
+
+										<div class="bg-info" th:if="${updateUserInfo}">User info
+											updated.</div>
+
+										<div class="form-group">
+											<div class="row">
+												<div class="col-xs-6">
+													<label for="firstName"><font color="#ff0000">*</font>
+														First Name</label> <input type="text" class="form-control"
+														id="firstName" name="firstName"
+														th:value="${user.firstName}" />
+												</div>
+												<div class="col-xs-6">
+													<label for="lastName"><font color="#ff0000">*</font>
+														Last Name</label> <input type="text" class="form-control"
+														id="lastName" name="lastName" th:value="${user.lastName}" />
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group">
+											<label for="userName"><font color="#ff0000">*</font>
+												Username</label><input type="text" class="form-control"
+												id="userName" name="username" th:value="${user.username}" />
+										</div>
+										<div class="form-group">
+											<label for="currentPassword"><font color="#ff0000">*</font>
+												Current Password</label>
+											<p style="color: #828282">Enter your current password to
+												change the email address or password.</p>
+											<input type="text" class="form-control" id="currentPassword"
+												name="password" th:value="${currentPassword}" />
+										</div>
+
+
+										<div class="form-group">
+											<label for="email"><font color="#ff0000">*</font>
+												Email Address</label>
+											<p style="color: #828282">A valid email address. All
+												emails from the system will be sent to this address. The
+												email address is not made public and will only be used if
+												you wish to receive a new password or wish to receive
+												certain notification.</p>
+											<input type="text" class="form-control" id="email"
+												name="email" th:value="${user.email}" />
+										</div>
+
+
+										<div class="form-group">
+											<label for="phone"><font color="#ff0000">*</font>
+												Mobile Number</label>
+											<p style="color: #828282">Enter a Valid mobile Number.
+												All the notifications from the system will be sent to this
+												mobile Number.</p>
+											<input type="text" class="form-control" id="phone"
+												name="phone" th:value="${user.phone}" />
+										</div>
+
+
+										<div class="form-group">
+											<label for="txtNewPassword"><font color="#ff0000">*</font>
+												Password</label><input type="password" class="form-control"
+												id="txtNewPassword" name="newPassword" />
+										</div>
+
+										<div class="form-group">
+											<label for="txtConfirmPassword"><font color="#ff0000">*</font>
+												Confirm Password</label><input type="password" class="form-control"
+												id="txtConfirmPassword" />
+										</div>
+										<p style="color: #FF0000">To change the current user
+											password, enter the new password in both fields.</p>
+
+										<button type="submit" class="btn btn-primary">Create
+											new account</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- end Edit User information -->
+
+					<!-- working Details information -->
+					<div class="tab-pane fade" id="tab-2"
+						th:classappend="${classActiveWorkingDetails}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+
+									<ol class="breadcrumb">
+										<li class="breadcrumb-item active"><a
+											th:href="@{/listOfWorkingDetails}"
+											th:style="${listOfWorkingDetails}? 'color:red'">List of
+												Working Details</a></li>
+										<li class="breadcrumb-item active"><a
+											th:href="@{/addWorkingDetail}"
+											th:style="${addWorkingDetail}? 'color:red'">Add(Update)
+												Working Detail</a></li>
+									</ol>
+
+
+									<div th:if="${listOfWorkingDetails}">
+										<form th:action="@{/setCurrentWorkingJob}" method="post">
+											<table class="table">
+												<thead>
+													<tr>
+														<th width="2%"></th>
+														<th width="5%"></th>
+														<th width="5%">Status</th>
+														<th width="34%">Client</th>
+														<th width="34%">Vendor</th>
+														<th width="10%">Start Date</th>
+														<th width="10%">End Date</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="workingDetail : ${workingDetailList}">
+														<td><input type="radio" name="defaultUserPaymentId"
+															th:value="${workingDetail.id}" /></td>
+														<!-- th:checked="${workingDetail.defaultPayment}" -->
+														<td><a
+															th:href="@{/updateWorkingDetail(id=${workingDetail.id})}">
+																<span class="glyphicon glyphicon-edit"></span>
+														</a>&nbsp;&nbsp;<a
+															th:href="@{/removeWorkingDetail(id=${workingDetail.id})}">
+																<span class="glyphicon glyphicon-trash"></span>
+														</a></td>
+														<td th:text="${workingDetail.isWorkingDetailActive}"></td>
+														<td>
+															<p th:text="${workingDetail.clientName}"></p>
+															<p th:text="${workingDetail.clientAddress}"></p>
+														</td>
+														<td>
+															<p th:text="${workingDetail.vendorName}"></p>
+															<p>
+																<span class="glyphicon glyphicon-earphone"></span>&nbsp;&nbsp;
+																<span th:text="${workingDetail.vendorPhone}"></span>
+															</p>
+															<p>
+																<span class="glyphicon glyphicon-envelope"></span>&nbsp;&nbsp;
+																<span th:text="${workingDetail.vendorMail}"></span>
+															</p>
+														</td>
+														<td><p th:text="${workingDetail.startDate}"></p></td>
+														<td><p th:text="${workingDetail.endDate}"></p></td>
+													</tr>
+												</tbody>
+											</table>
+											<button class="btn btn-primary" type="submit">Save</button>
+										</form>
+									</div>
+
+
+									<div th:if="${addWorkingDetail}">
+										<form th:action="@{/addWorkingDetail}" method="post">
+										
+										<input hidden="hidden" name="id" th:value="${workingDetail.id}" />
+										
+											<div class="form-group">
+												<label for="clientName">Client Name</label> <input
+													type="text" class="form-control" id="clientName"
+													name="clientName" th:value="${workingDetail.clientName}" placeholder="client Name" />
+											</div>
+											<div class="form-group">
+												<label for="clientAddress">Client Address</label>
+												<textarea class="form-control" id="clientAddress"
+													name="clientAddress" th:field="${workingDetail.clientAddress}" rows="3"></textarea>
+											</div>
+											<div class="form-group">
+												<label for="vendorName">Vendor Name</label> <input
+													type="text" class="form-control" id="vendorName"
+													name="vendorName" th:value="${workingDetail.vendorName}" placeholder="Vendor Name" />
+											</div>
+											<div class="form-group">
+												<label for="vendorPhone">Vendor Contact</label> <input
+													type="text" class="form-control" id="vendorPhone"
+													name="vendorPhone" th:value="${workingDetail.vendorPhone}"  placeholder="Vendor Contact" />
+											</div>
+											<div class="form-group">
+												<label for="vendorMail">Vendor Mail Id</label> <input
+													type="text" class="form-control" id="vendorMail"
+													name="vendorMail" th:value="${workingDetail.vendorMail}" placeholder="Vendor Mail Id" />
+											</div>
+											<div class="form-group">
+												<label for="designation">Designation</label> <input
+													type="text" class="form-control" id="designation"
+													name="designation" th:value="${workingDetail.designation}" placeholder="designation" />
+											</div>
+											<div class="form-group">
+												<label for="workPhone">Work Contact</label> <input
+													type="text" class="form-control" id="workPhone"
+													name="workPhone" th:value="${workingDetail.workPhone}" placeholder="workPhone" />
+											</div>
+											<div class="form-group">
+												<label for="workMail">Work Mail Id</label> <input
+													type="text" class="form-control" id="workMail"
+													name="workMail" th:value="${workingDetail.workMail}" placeholder="Work Mail Id" />
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="startDate"><font color="#ff0000">*</font>
+															Start Date</label> <input type="date" data-provide="datepicker" class="form-control"
+															id="startDate" name="startDate" />
+													</div>
+													<div class="col-xs-2">
+														<label for="endDate"><font color="#ff0000">*</font>
+															End Date</label> <input type="date" data-provide="datepicker" class="form-control"
+															id="endDate" name="endDate" />
+													</div>
+												</div>
+											</div>
+
+											<button type="submit" class="btn btn-primary">Update
+												Project</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- end Edit User information -->
+
+
+					<!-- Important Dates information -->
+					<div class="tab-pane fade" id="tab-3"
+						th:classappend="${classActiveImportantDates}? 'in active'">
+						<div class="panel-group">
+							<div class="panel panel-default" style="border: none;">
+								<div class="panel-body"
+									style="background-color: #ededed; margin-top: 20px;">
+									<ol class="breadcrumb">
+										<li class="breadcrumb-item active"><a
+											th:href="@{/listOfImportantDates}"
+											th:style="${listOfImportantDates}? 'color:red'">List of
+												Important Dates</a></li>
+										<li class="breadcrumb-item active"><a
+											th:href="@{/addImportantDate}"
+											th:style="${addImportantDate}? 'color:red'">Add(Update)
+												Important Date</a></li>
+									</ol>
+									<div th:if="${listOfImportantDates}">
+										<form th:action="@{/setCurrentWorkingJob}" method="post">
+											<table class="table">
+												<thead>
+													<tr>
+														<th width="5%"></th>
+														<th width="5%"></th>
+														<th width="10%">Type</th>
+														<th width="60%">Card Number</th>
+														<th width="10%">Start Date</th>
+														<th width="10%">End Date</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="importantDate : ${importantDateList}">
+														<td><input type="radio" name="currentActiveDateId"
+															th:value="${importantDate.id}" /></td>
+														<!-- th:checked="${workingDetail.defaultPayment}" -->
+														<td><a
+															th:href="@{/updateWorkingDetail(id=${importantDate.id})}">
+																<span class="glyphicon glyphicon-edit"></span>
+														</a>&nbsp;&nbsp;<a
+															th:href="@{/removeWorkingDetail(id=${importantDate.id})}">
+																<span class="glyphicon glyphicon-trash"></span>
+														</a></td>
+														<!-- <td th:text="${importantDate.activeDate}"></td> -->
+														<td>
+															<p th:text="${importantDate.cardType}"></p>
+														</td>
+														<td>
+															<p th:text="${importantDate.cardNumber}"></p>
+														</td>
+														<td><p th:text="${importantDate.startDate}"></p></td>
+														<td><p th:text="${importantDate.endDate}"></p></td>
+													</tr>
+												</tbody>
+											</table>
+											<button class="btn btn-primary" type="submit">Save</button>
+										</form>
+									</div>
+
+									<div th:if="${addImportantDate}">
+										<form th:action="@{/addImportantDate}" method="post">
+											<div class="form-group col-sm-3">
+												<label for="cardType">Card Type</label> <input type="text"
+													class="form-control" id="cardType" name="cardType"
+													placeholder="Card Type" />
+											</div>
+											<div class="form-group col-xs-3">
+												<label for="cardNumber">Card Number</label> <input
+													type="text" class="form-control" id="cardNumber"
+													name="cardNumber" placeholder="Card Number" />
+											</div>
+											<div class="form-group">
+												<div class="row">
+													<div class="col-sm-2">
+														<label for="startDate"><font color="#ff0000">*</font>
+															Start Date</label> <input type="text" class="form-control"
+															id="startDate" name="startDate" />
+													</div>
+													<div class="col-sm-2">
+														<label for="endDate"><font color="#ff0000">*</font>
+															End Date</label> <input type="text" class="form-control"
+															id="endDate" name="endDate" />
+													</div>
+												</div>
+											</div>
+											<div class="form-group col-xs-12">
+												<input type="file" class="btn btn-outline-primary btn-lg" name="cardDocument" id="validatedCustomFile" />
+											</div>
+
+											<!-- 											<table class="datatable">
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+												<tr height="30">
+													<th width="200">Type</th>
+
+													<th width="200">CPT</th>
+
+													<th width="200">OPT</th>
+
+													<th width="200">OPT - Ext</th>
+
+													<th width="200">H1</th>
+
+													<th width="200">GC - EAD</th>
+
+													<th width="200">GC</th>
+
+													<td  width="200">8</td>
+												</tr>
+												<tr>
+													<td align="center" width="200">Card Number</td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="cptNumber"
+														id="cptNumber" placeholder="CPT Number"
+														th:value="${importantDates.cptNumber}" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="optNumber"
+														id="optNumber" placeholder="OPT Number"
+														th:value="${importantDates.optNumber}" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="optExtNumber"
+														id="optExtNumber" placeholder="OPT - Ext Number"
+														th:value="${importantDates.optExtNumber}" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="h1Number"
+														id="h1Number" placeholder="H1 Number"
+														th:value="${importantDates.h1Number}" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="gcEadNumber"
+														id="gcEadNumber" placeholder="GC - EAD Number"
+														th:value="${importantDates.gcEadNumber}" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="text" name="gcNumber"
+														id="gcNumber" placeholder="GC Number"
+														th:value="${importantDates.gcNumber}" /></td>
+
+												</tr>
+												<tr>
+													<td align="center" width="200">Start Date</td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200">8</td>
+												</tr>
+												<tr>
+													<td align="center" width="200">Expiry Date</td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200"><input
+														class="form-control" type="date" data-provide="datepicker"
+														name="payrollStarDate" id="payrollStartDate"
+														data-rule="required" /></td>
+
+													<td align="center" width="200">8</td>
+												</tr>
+											</table> -->
+											<br />
+											<div align="center">
+												<button type="submit" class="btn btn-primary">Add</button>
+											</div>
+
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- end Important Dates Information -->
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end of container -->
+
+	</div>
+	<div th:replace="common/header :: body-bottom-scripts"></div>
+</body>
+</html>
