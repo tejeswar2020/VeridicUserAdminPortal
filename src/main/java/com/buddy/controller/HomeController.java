@@ -30,6 +30,7 @@ import com.buddy.domain.WorkingDetail;
 import com.buddy.domain.security.PasswordResetToken;
 import com.buddy.domain.security.Role;
 import com.buddy.domain.security.UserRole;
+import com.buddy.service.ImportantDateService;
 import com.buddy.service.UserService;
 import com.buddy.service.WorkingDetailService;
 import com.buddy.service.impl.UserSecurityService;
@@ -54,6 +55,9 @@ public class HomeController
 	
 	@Autowired
 	private WorkingDetailService workingDetailService;
+	
+	@Autowired
+	private ImportantDateService importantDateService;
 
 	@RequestMapping("/")
 	public String index()
@@ -250,22 +254,66 @@ public class HomeController
 	public String addWorkingDetailPost(@ModelAttribute("workingDetail") WorkingDetail workingDetail,
 			Principal principal, Model model)
 	{
-
 		User user = userService.findByUsername(principal.getName());
-		userService.updateWorkingDetail(workingDetail, user);
+		
+		if (isWorkingDetailEmpty(workingDetail))
+		{
+			model.addAttribute("emptyRecord", true);
+			
+			model.addAttribute("user", user);
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
 
-		model.addAttribute("user", user);
-		model.addAttribute("importantDateList", user.getImportantDateList());
-		model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			model.addAttribute("classActiveWorkingDetails", true);
+			model.addAttribute("addWorkingDetail", "true");
 
-		model.addAttribute("classActiveWorkingDetails", true);
-		model.addAttribute("listOfWorkingDetails", true);
+			return "myProfile";
+		}
+		else
+		{
+			userService.updateWorkingDetail(workingDetail, user);
 
-		return "redirect:listOfWorkingDetails";
+			model.addAttribute("user", user);
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+
+			model.addAttribute("classActiveWorkingDetails", true);
+			model.addAttribute("listOfWorkingDetails", true);
+
+			return "myProfile";
+		}
+	}
+
+	private boolean isWorkingDetailEmpty(WorkingDetail workingDetail)
+	{
+		if (workingDetail.getClientAddress().trim().equals("") ||
+			workingDetail.getClientName().trim().equals("") )
+		{
+			return true;
+		}
+		else if (workingDetail.getVendorName().trim().equals("") ||
+				 workingDetail.getVendorMail().trim().equals("") ||
+				 workingDetail.getVendorPhone().trim().equals(""))
+		{
+			return true;
+		}
+		else if (workingDetail.getDesignation().trim().equals("") ||
+				 workingDetail.getWorkMail().trim().equals("") ||
+				 workingDetail.getWorkPhone().trim().equals(""))
+		{
+			return true;
+		}
+		else if (workingDetail.getStartDate().trim().equals("") ||
+				 workingDetail.getEndDate().trim().equals(""))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 
 	@RequestMapping("/updateWorkingDetail")
-	public String updateCreditCard(@ModelAttribute("id") Long id, Principal principal, Model model)
+	public String updateWorkingDetail(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
 		WorkingDetail workingDetail = workingDetailService.findById(id);
@@ -289,7 +337,7 @@ public class HomeController
 	}
 	
 	@RequestMapping("/removeWorkingDetail")
-	public String removeCreditCard(@ModelAttribute("id") Long id, Principal principal, Model model)
+	public String removeWorkingDetail(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
 		WorkingDetail workingDetail = workingDetailService.findById(id);
@@ -314,12 +362,16 @@ public class HomeController
 			return "myProfile";
 		}
 	}
+	
 	@RequestMapping("/addImportantDate")
 	public String addImportantDate(Model model, Principal principal)
 	{
 		User user = userService.findByUsername(principal.getName());
 		model.addAttribute("user", user);
 
+		ImportantDate importantDate = new ImportantDate();
+		model.addAttribute("importantDate", importantDate);
+		
 		model.addAttribute("classActiveImportantDates", true);
 		model.addAttribute("addImportantDate", true);
 		model.addAttribute("importantDateList", user.getImportantDateList());
@@ -361,6 +413,57 @@ public class HomeController
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
 		
 		return "myProfile";
+	}
+	
+	@RequestMapping("/updateImportantDate")
+	public String updateImportantDate(@ModelAttribute("id") Long id, Principal principal, Model model)
+	{
+		User user = userService.findByUsername(principal.getName());
+		ImportantDate importantDate = importantDateService.findById(id);
+		
+		if(user.getId() != importantDate.getUser().getId()) 
+		{
+			return "badRequestPage";
+		}
+		else
+		{
+			model.addAttribute("user", user);
+			model.addAttribute("importantDate", importantDate);
+			model.addAttribute("classActiveImportantDates", true);
+			model.addAttribute("addImportantDate", true);
+			
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			
+			return "myProfile";
+		}
+	}
+	
+	@RequestMapping("/removeImportantDate")
+	public String removeImportantDate(@ModelAttribute("id") Long id, Principal principal, Model model)
+	{
+		User user = userService.findByUsername(principal.getName());
+		ImportantDate importantDate = importantDateService.findById(id);
+		
+		if(user.getId() != importantDate.getUser().getId())
+		{
+			String message = "Something went wrong. Contact Admin!!!";
+			model.addAttribute("message", message);
+			return "badRequestPage";
+		} 
+		else 
+		{
+			model.addAttribute("user", user);
+			importantDateService.removeById(id);
+			
+			model.addAttribute("classActiveImportantDates", true);
+			model.addAttribute("listOfImportantDates", true);
+			
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			
+			return "myProfile";
+		}
 	}
 
 	@RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
@@ -442,9 +545,10 @@ public class HomeController
 
 		model.addAttribute("updateSuccess", true);
 		model.addAttribute("user", currentUser);
-
-		model.addAttribute("listOfShippingAddresses", true);
-		model.addAttribute("listOfCreditCards", true);
+		model.addAttribute("importantDateList", user.getImportantDateList());
+		model.addAttribute("workingDetailList", user.getWorkingDetailList());
+		model.addAttribute("listOfWorkingDetails", true);
+		model.addAttribute("listOfImportantDates", true);
 
 		UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.getUsername());
 
@@ -454,6 +558,6 @@ public class HomeController
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		// model.addAttribute("orderList", user.getOrderList());
 
-		return "myProfile";
+		return "redirect:myProfile";
 	}
 }
