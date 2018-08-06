@@ -1,6 +1,6 @@
 package com.buddy.domain;
 
-import java.util.Date;
+import java.sql.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,8 +24,8 @@ public class WorkingDetail
 	private String designation;
 	private String workPhone;
 	private String workMail;
-	private String startDate;
-	private String endDate;
+	private Date startDate;
+	private Date endDate;
 	
 	@Transient
 	private char isWorkingDetailActive;
@@ -124,22 +124,22 @@ public class WorkingDetail
 		this.workMail = workMail;
 	}
 
-	public String getStartDate()
+	public Date getStartDate()
 	{
 		return startDate;
 	}
 
-	public void setStartDate(String startDate)
+	public void setStartDate(Date startDate)
 	{
 		this.startDate = startDate;
 	}
 
-	public String getEndDate()
+	public Date getEndDate()
 	{
 		return endDate;
 	}
 
-	public void setEndDate(String endDate)
+	public void setEndDate(Date endDate)
 	{
 		this.endDate = endDate;
 	}

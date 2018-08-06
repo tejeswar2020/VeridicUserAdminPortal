@@ -1,11 +1,17 @@
 package com.buddy.domain;
 
+import java.sql.Date;
+import java.util.Calendar;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 public class ImportantDate
@@ -15,9 +21,13 @@ public class ImportantDate
 	private Long id;
 	private String cardType;
 	private String cardNumber;
-	private String startDate;
-	private String endDate;
+	private Date startDate;
+	private Date endDate;
+	private String cardExtention;
 	private boolean activeDate;
+	
+	@Transient
+	private MultipartFile cardDocument;
 	
 	@ManyToOne
 	@JoinColumn(name="user_id")
@@ -53,24 +63,34 @@ public class ImportantDate
 		this.cardNumber = cardNumber;
 	}
 
-	public String getStartDate()
+	public Date getStartDate()
 	{
 		return startDate;
 	}
 
-	public void setStartDate(String startDate)
+	public void setStartDate(Date startDate)
 	{
 		this.startDate = startDate;
 	}
 
-	public String getEndDate()
+	public Date getEndDate()
 	{
 		return endDate;
 	}
 
-	public void setEndDate(String endDate)
+	public void setEndDate(Date endDate)
 	{
 		this.endDate = endDate;
+	}
+
+	public String getCardExtention()
+	{
+		return cardExtention;
+	}
+
+	public void setCardExtention(String cardExtention)
+	{
+		this.cardExtention = cardExtention;
 	}
 
 	public boolean isActiveDate()
@@ -91,6 +111,16 @@ public class ImportantDate
 	public void setUser(User user)
 	{
 		this.user = user;
+	}
+
+	public MultipartFile getCardDocument()
+	{
+		return cardDocument;
+	}
+
+	public void setCardDocument(MultipartFile cardDocument)
+	{
+		this.cardDocument = cardDocument;
 	}
 	
 	

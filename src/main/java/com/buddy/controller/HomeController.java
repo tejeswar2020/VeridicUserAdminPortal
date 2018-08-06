@@ -1,6 +1,14 @@
 package com.buddy.controller;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -23,6 +31,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.buddy.domain.ImportantDate;
 import com.buddy.domain.User;
@@ -40,7 +49,7 @@ import com.buddy.utility.SecurityUtility;
 @Controller
 public class HomeController
 {
-
+	
 	@Autowired
 	private JavaMailSender mailSender;
 
@@ -58,6 +67,12 @@ public class HomeController
 	
 	@Autowired
 	private ImportantDateService importantDateService;
+	
+	private static String PATH = "src/main/resources/static/image/";
+	
+	private static String EMPTY = " should not be empty.";
+	
+	private static StringBuilder feedBack =  new StringBuilder();
 
 	@RequestMapping("/")
 	public String index()
@@ -70,6 +85,17 @@ public class HomeController
 	{
 		model.addAttribute("classActiveLogin", true);
 		return "myAccount";
+	}
+	
+	@RequestMapping("/myProfilePage")
+	public String myProfilePage(Model model, Principal principal)
+	{
+		User user = userService.findByUsername(principal.getName());
+		model.addAttribute("user", user);
+		model.addAttribute("workingDetailList", user.getWorkingDetailList());
+		model.addAttribute("importantDateList", user.getImportantDateList());
+		
+		return "myProfilePage";
 	}
 
 	@RequestMapping("/myProfile")
@@ -240,6 +266,16 @@ public class HomeController
 		model.addAttribute("user", user);
 		
 		WorkingDetail workingDetail = new WorkingDetail();
+		if (null == workingDetail.getEndDate())
+		{
+			java.sql.Date endDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+			workingDetail.setEndDate(endDate);
+		}
+		if (null == workingDetail.getStartDate())
+		{
+			java.sql.Date startDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+			workingDetail.setStartDate(startDate);
+		}
 		model.addAttribute("workingDetail", workingDetail);
 
 		model.addAttribute("addWorkingDetail", true);
@@ -256,7 +292,7 @@ public class HomeController
 	{
 		User user = userService.findByUsername(principal.getName());
 		
-		if (isWorkingDetailEmpty(workingDetail))
+		if (isWorkingDetailFieldInvalid(workingDetail, feedBack))
 		{
 			model.addAttribute("emptyRecord", true);
 			
@@ -267,6 +303,9 @@ public class HomeController
 			model.addAttribute("classActiveWorkingDetails", true);
 			model.addAttribute("addWorkingDetail", "true");
 
+			model.addAttribute("invalidWorkingDateField", true);
+			model.addAttribute("feedBack", feedBack);
+			
 			return "myProfile";
 		}
 		else
@@ -284,28 +323,39 @@ public class HomeController
 		}
 	}
 
-	private boolean isWorkingDetailEmpty(WorkingDetail workingDetail)
+	private boolean isWorkingDetailFieldInvalid(WorkingDetail workingDetail, StringBuilder feedback)
 	{
 		if (workingDetail.getClientAddress().trim().equals("") ||
 			workingDetail.getClientName().trim().equals("") )
 		{
+			feedBack.setLength(0);
+			feedBack.append("Client Name/Address" + EMPTY);
 			return true;
 		}
 		else if (workingDetail.getVendorName().trim().equals("") ||
 				 workingDetail.getVendorMail().trim().equals("") ||
 				 workingDetail.getVendorPhone().trim().equals(""))
 		{
+			feedBack.setLength(0);
+			feedBack.append("Vendor Name/Mail/Phone" + EMPTY);
 			return true;
 		}
 		else if (workingDetail.getDesignation().trim().equals("") ||
 				 workingDetail.getWorkMail().trim().equals("") ||
 				 workingDetail.getWorkPhone().trim().equals(""))
 		{
+			feedBack.setLength(0);
+			feedBack.append("Designation/Mail/Phone" + EMPTY);
 			return true;
 		}
-		else if (workingDetail.getStartDate().trim().equals("") ||
-				 workingDetail.getEndDate().trim().equals(""))
+		
+		Date startDate = workingDetail.getStartDate();
+		Date endDate = workingDetail.getEndDate();
+		
+		if (endDate.before(startDate))
 		{
+			feedBack.setLength(0);
+			feedBack.append("End Date should be greater than Start Date.");
 			return true;
 		}
 		
@@ -370,6 +420,16 @@ public class HomeController
 		model.addAttribute("user", user);
 
 		ImportantDate importantDate = new ImportantDate();
+		if (null == importantDate.getEndDate())
+		{
+			java.sql.Date endDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+			importantDate.setEndDate(endDate);
+		}
+		if (null == importantDate.getStartDate())
+		{
+			java.sql.Date startDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+			importantDate.setStartDate(startDate);
+		}
 		model.addAttribute("importantDate", importantDate);
 		
 		model.addAttribute("classActiveImportantDates", true);
@@ -382,11 +442,50 @@ public class HomeController
 	}
 	
 	@RequestMapping(value = "/addImportantDate", method = RequestMethod.POST)
-	public String addImportantDatesPost(@ModelAttribute("importantDates") ImportantDate importantDate,
+	public String addImportantDatesPost(@ModelAttribute("importantDate") ImportantDate importantDate,
 			Principal principal, Model model) throws Exception
 	{
 		User user = userService.findByUsername(principal.getName());
+		
+		MultipartFile cardDocument = importantDate.getCardDocument();
+		String cardDocumentExtention = getExtensionOfFile(cardDocument);
+		System.out.println("Original FileName " + cardDocument.getOriginalFilename());
+		System.out.println("Original contentType " + cardDocument.getContentType());
+		
+		// Check for Blank Fields || Check for Blank document.
+		if(isImportantDateFieldsInvalid(importantDate, cardDocument, feedBack))
+		{
+			model.addAttribute("classActiveImportantDates", true);
+			model.addAttribute("user", user);
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			model.addAttribute("addImportantDate", true);
+			
+			model.addAttribute("invalidImportantDateField", true);
+			model.addAttribute("feedBack", feedBack);
+
+			return "myProfile";
+		}
+		
+		importantDate.setCardExtention(cardDocumentExtention);
+		// Save the Important Table.
 		userService.updateImportantDates(user, importantDate);
+		
+		try
+		{
+			byte[] bytes = cardDocument.getBytes();
+			String name = importantDate.getCardType() + cardDocumentExtention;
+			String filePath = createOrRetrieve( PATH + user.getId());
+			
+			BufferedOutputStream stream = new BufferedOutputStream(
+					new FileOutputStream(new File(filePath + "/" + name)));
+			stream.write(bytes);
+			stream.close();
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 
 		model.addAttribute("classActiveImportantDates", true);
 		model.addAttribute("user", user);
@@ -395,6 +494,64 @@ public class HomeController
 		model.addAttribute("listOfImportantDates", true);
 
 		return "redirect:listOfImportantDates";
+	}
+	
+	public static String getExtensionOfFile(MultipartFile file)
+	{
+		String fileExtension="";
+		// Get file Name first
+		String fileName=file.getOriginalFilename();
+		
+		// If fileName do not contain "." or starts with "." then it is not a valid file
+		if(fileName.contains(".") && fileName.lastIndexOf(".")!= 0)
+		{
+			fileExtension = "." + fileName.substring(fileName.lastIndexOf(".")+1);
+		}
+		
+		return fileExtension;
+	}
+	
+	private boolean isImportantDateFieldsInvalid(ImportantDate importantDate, MultipartFile cardDocument, StringBuilder feedBack)
+	{
+		if (importantDate.getCardType().trim().equals("") ||
+			importantDate.getCardNumber().trim().equals("") )
+		{
+			feedBack.setLength(0);
+			feedBack.append("Card Type/Number should not be empty Field.");
+			return true;
+		}
+		
+		Date startDate = importantDate.getStartDate();
+		Date endDate = importantDate.getEndDate();
+		
+		if (endDate.before(startDate))
+		{
+			feedBack.setLength(0);
+			feedBack.append("End Date should be greater than Start Date.");
+			return true;
+		}
+		
+		if (cardDocument.isEmpty())
+		{
+			feedBack.setLength(0);
+			feedBack.append("Document should not be empty !");
+			return true;
+		}
+		return false;
+	}
+	
+	private String createOrRetrieve(final String target) throws IOException
+	{
+	    final Path path = Paths.get(target);
+
+	    if(Files.notExists(path))
+	    {
+//	        LOG.info("Target file \"" + target + "\" will be created.");
+	        return Files.createDirectories(path).toString();
+	    }
+	    
+//	    LOG.info("Target file \"" + target + "\" will be retrieved.");
+	    return path.toString();
 	}
 	
 	@RequestMapping("/listOfImportantDates")
@@ -455,6 +612,18 @@ public class HomeController
 		{
 			model.addAttribute("user", user);
 			importantDateService.removeById(id);
+			
+			try
+			{
+				String name = importantDate.getCardType() + importantDate.getCardExtention();
+				String filePath = createOrRetrieve( PATH + user.getId());
+				Files.delete(Paths.get(filePath + "/" + name));
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			model.addAttribute("classActiveImportantDates", true);
 			model.addAttribute("listOfImportantDates", true);
