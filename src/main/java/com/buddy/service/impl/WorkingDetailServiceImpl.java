@@ -1,5 +1,7 @@
 package com.buddy.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,13 @@ public class WorkingDetailServiceImpl implements WorkingDetailService
 	@Autowired
 	private WorkingDetailRepository workingDetailRepository;
 
-	public WorkingDetail findById(Long id)
+	public Optional<WorkingDetail> findById(Long id)
 	{
-		return workingDetailRepository.findOne(id);
+		return workingDetailRepository.findById(id);
 	}
 
 	public void removeById(Long id)
 	{
-		workingDetailRepository.delete(id);
+		workingDetailRepository.deleteById(id);
 	}
 }

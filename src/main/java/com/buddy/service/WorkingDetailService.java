@@ -1,10 +1,12 @@
 package com.buddy.service;
 
+import java.util.Optional;
+
 import com.buddy.domain.WorkingDetail;
 
 public interface WorkingDetailService
 {
-	WorkingDetail findById(Long id);
+	Optional<WorkingDetail> findById(Long id);
 
 	void removeById(Long id);
 }

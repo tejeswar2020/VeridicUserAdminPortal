@@ -1,7 +1,6 @@
 package com.buddy.domain;
 
 import java.sql.Date;
-import java.util.Calendar;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +11,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * copyrights © 2018 - Veridic solutions
+ * 
+ * @author Tejeswar Velpucharla
+ */
 
 @Entity
 public class ImportantDate

@@ -416,9 +416,10 @@
 													th:value="${importantDate.id}" />
 												
 											<div class="form-group col-sm-3">
-												<label for="cardType">Card Type</label> <input type="text"
-													class="form-control" id="cardType" name="cardType" th:value="${importantDate.cardType}"
-													placeholder="Card Type" />
+												<label for="cardType">From Branch</label>
+												<select th:value="${importantDate.cardType}" id="language" class="form-control">
+													<option th:each="cardType : ${cardTypeList}" th:text="${cardType}" th:selected="(${importantDate.cardType}==${cardType})"></option>
+												</select>
 											</div>
 											<div class="form-group col-xs-3">
 												<label for="cardNumber">Card Number</label> <input
@@ -478,31 +479,28 @@
 											<div class="alert alert-danger" th:if="${invalidPersonalDetail}" >
 												<span th:text="${feedBack}"></span>
 											</div>
-											<input hidden="hidden" name="id"
-													th:value="1" />
+											<input hidden="hidden" name="id" th:value="${user.id}" />
 											
 											<div class="form-group">
 												<div class="row">
 													<div class="col-xs-3">
-														<label for="gender">Gender</label> <input type="text"
-															class="form-control" id="gender" name="gender" th:value="1"
-															placeholder="gender" />
+														<label for="gender">Gender</label>
+														<input type="text" class="form-control" id="gender" name="gender" th:value="${user.gender}" placeholder="gender" />
 													</div>
 													
 													<div class="col-xs-3">
-														<label for="maritialStatus">Maritial Status</label> <input
-															type="text" class="form-control" id="maritialStatus" th:value="1"
-															name="maritialStatus" placeholder="Card Number" />
+														<label for="maritialStatus">Maritial Status</label>
+														<input type="text" class="form-control" id="maritialStatus" th:value="${user.maritialStatus}" name="maritialStatus" placeholder="maritial Status" />
 													</div>
 													
 													<div class="col-xs-3">
 														<label for="dateOfBirth"><font color="#ff0000">* </font>Date of Birth</label>
-														<input type="date" data-provide="datepicker" class="form-control" th:value="1" id="dateOfBirth" name="dateOfBirth" />
+														<input type="date" data-provide="datepicker" class="form-control" th:value="${user.dateOfBirth}" id="dateOfBirth" name="dateOfBirth" />
 													</div>
 													
 													<div class="col-xs-3">
 														<label for="ethnicity"><font color="#ff0000">* </font>Ethnicity</label>
-														<input type="text" class="form-control" id="ethnicity" name="ethnicity" />
+														<input type="text" class="form-control" th:value="${user.ethnicity}" id="ethnicity" name="ethnicity" />
 													</div>
 												</div>
 											</div>
@@ -510,8 +508,8 @@
 											<div class="form-group">
 												<div class="row">
 													<div class="col-xs-6">
-														<label for="address"><font color="#ff0000">* </font>Living Address</label>
-														<textarea class="form-control" id="address" name="address" rows="3"></textarea>
+														<label for="livingAddress"><font color="#ff0000">* </font>Living Address</label>
+														<textarea class="form-control" id="livingAddress" th:field="${user.livingAddress}" name="livingAddress" rows="3"></textarea>
 													</div>
 												</div>
 											</div>
@@ -519,8 +517,11 @@
 											<div class="form-group">
 												<div class="row">
 													<div class="col-xs-6">
-														<label for="branch">From Branch</label>
-														<input type="text" class="form-control" id="branch"	name="branch" placeholder="branch" />
+														<label for="fromBranch">From Branch</label>
+														<!-- <input type="text" class="form-control" id="fromBranch"	th:value="${user.fromBranch}" name="fromBranch" placeholder="branch" /> -->
+														<select th:value="${user.fromBranch}" id="language" class="form-control">
+															<option th:each="branch : ${branchList}" th:text="${branch}" th:selected="(${user.fromBranch}==${branch})"></option>
+														</select>
 													</div>
 												</div>
 											</div>
@@ -529,7 +530,7 @@
 												<div class="row">
 													<div class="col-xs-6">
 														<label for="technology">Technology</label>
-														<input type="text" class="form-control" id="technology" name="technology" placeholder="technology" />
+														<input type="text" class="form-control" id="technology" th:value="${user.technology}" name="technology" placeholder="technology" />
 													</div>
 												</div>
 											</div>
@@ -538,7 +539,7 @@
 												<div class="row">
 													<div class="col-xs-6">
 														<label for="reffer"><font color="#ff0000">* </font>Reffered By</label>
-														<input type="text" class="form-control" id="reffer" name="reffer" />
+														<input type="text" class="form-control" id="reffer" th:value="${user.reffer}" name="reffer" />
 													</div>
 												</div>
 											</div>
@@ -547,7 +548,7 @@
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="dateOfJoining"><font color="#ff0000">* </font>Date of Joining</label>
-														<input type="date" data-provide="datepicker" class="form-control" th:value="1" id="dateOfJoining" name="dateOfJoining" />
+														<input type="date" data-provide="datepicker" class="form-control" th:value="${user.dateOfJoining}" id="dateOfJoining" name="dateOfJoining" />
 													</div>
 												</div>
 											</div>
@@ -556,7 +557,7 @@
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="employeeStatus"><font color="#ff0000">* </font>Employee Status</label>
-														<input type="text" class="form-control" id="employeeStatus" name="employeeStatus" />
+														<input type="text" class="form-control" id="employeeStatus" th:value="${user.employeeStatus}" name="employeeStatus" />
 													</div>
 												</div>
 											</div>
@@ -565,7 +566,7 @@
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="reportingManager"><font color="#ff0000">* </font>Reporting Manager</label>
-														<input type="text" class="form-control" id="reportingManager" name="reportingManager" />
+														<input type="text" class="form-control" id="reportingManager" th:value="${user.reportingManager}" name="reportingManager" />
 													</div>
 												</div>
 											</div>
@@ -574,7 +575,7 @@
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="payrollId">Payroll Id</label>
-														<input type="text" class="form-control" id="payrollId" name="payrollId" placeholder="payrollId" />
+														<input type="text" class="form-control" id="payrollId" th:value="${user.payrollId}" name="payrollId" placeholder="payrollId" />
 													</div>
 												</div>
 											</div>
@@ -583,7 +584,7 @@
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="payrollStartDate"><font color="#ff0000">* </font>payroll StartDate</label>
-														<input type="date" data-provide="datepicker" class="form-control" th:value="1" id="payrollStartDate" name="payrollStartDate" />
+														<input type="date" data-provide="datepicker" class="form-control" th:value="${user.payrollStartDate}" id="payrollStartDate" name="payrollStartDate" />
 													</div>
 												</div>
 											</div>

@@ -1,5 +1,6 @@
 package com.buddy.service;
 
+import java.util.Optional;
 import java.util.Set;
 
 import com.buddy.domain.ImportantDate;
@@ -20,7 +21,7 @@ public interface UserService
 	
 	User findByPhone (String phone);
 	
-	User findById(Long id);
+	Optional<User> findById(Long id);
 	
 	User createUser(User user, Set<UserRole> userRoles) throws Exception;
 	
