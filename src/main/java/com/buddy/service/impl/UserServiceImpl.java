@@ -1,6 +1,6 @@
 package com.buddy.service.impl;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -65,9 +65,9 @@ public class UserServiceImpl implements UserService
 	}
 
 	@Override
-	public User findById(Long id)
+	public Optional<User> findById(Long id)
 	{
-		return userRepository.findOne(id);
+		return userRepository.findById(id);
 	}
 
 	@Override

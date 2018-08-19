@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+	xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:fragment="common-header">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Veridic Solutions</title>
+
+<!-- Bootstrap core CSS -->
+<link href="/css/bootstrap.min.css" rel="stylesheet" />
+
+<link href="/css/non-responsive.css" rel="stylesheet" />
+
+<!-- Custom styles for this template -->
+<link href="/css/style.css" rel="stylesheet" />
+
+<link rel="icon" href="/image/veridicFavIcon.ico" />
+</head>
+<body>
+	<div th:fragment="confirm">
+		<div id="confirm" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Please confirm</h4>
+					</div>
+					<div class="modal-body">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+						<a id="btn-confirm" class="btn btn-primary pull-right">Confirm</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

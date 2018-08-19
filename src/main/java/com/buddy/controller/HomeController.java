@@ -11,7 +11,9 @@ import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.buddy.constants.BranchConstants;
+import com.buddy.constants.CardTypeConstants;
 import com.buddy.domain.ImportantDate;
 import com.buddy.domain.User;
 import com.buddy.domain.WorkingDetail;
@@ -94,7 +98,7 @@ public class HomeController
 		model.addAttribute("user", user);
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
 		model.addAttribute("importantDateList", user.getImportantDateList());
-		
+		model.addAttribute("currentDesignation", user.getWorkingDetailList().get(0).getDesignation());
 		return "myProfilePage";
 	}
 
@@ -110,8 +114,20 @@ public class HomeController
 		model.addAttribute("listOfImportantDates", true);
 
 		model.addAttribute("classActiveEdit", true);
+		listOfBranchDetails(model);
 
 		return "myProfile";
+	}
+
+	private void listOfBranchDetails(Model model)
+	{
+		List<String> branchList = BranchConstants.listOfUSBranchName;
+//		Collections.sort(branchList);
+		model.addAttribute("branchList", branchList);
+		
+		List<String> cardTypeList = CardTypeConstants.listOfCardTypeName;
+//		Collections.sort(cardTypeList);
+		model.addAttribute("cardTypeList", cardTypeList);
 	}
 
 	@RequestMapping("/forgetPassword")
@@ -255,6 +271,7 @@ public class HomeController
 
 		model.addAttribute("listOfWorkingDetails", true);
 		model.addAttribute("classActiveWorkingDetails", true);
+		listOfBranchDetails(model);
 
 		return "myProfile";
 	}
@@ -282,6 +299,7 @@ public class HomeController
 		model.addAttribute("classActiveWorkingDetails", true);
 		model.addAttribute("listOfImportantDates", true);
 		model.addAttribute("importantDateList", user.getImportantDateList());
+		listOfBranchDetails(model);
 
 		return "myProfile";
 	}
@@ -305,6 +323,7 @@ public class HomeController
 
 			model.addAttribute("invalidWorkingDateField", true);
 			model.addAttribute("feedBack", feedBack);
+			listOfBranchDetails(model);
 			
 			return "myProfile";
 		}
@@ -318,6 +337,7 @@ public class HomeController
 
 			model.addAttribute("classActiveWorkingDetails", true);
 			model.addAttribute("listOfWorkingDetails", true);
+			listOfBranchDetails(model);
 
 			return "myProfile";
 		}
@@ -366,9 +386,9 @@ public class HomeController
 	public String updateWorkingDetail(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
-		WorkingDetail workingDetail = workingDetailService.findById(id);
+		Optional<WorkingDetail> workingDetail = workingDetailService.findById(id);
 		
-		if(user.getId() != workingDetail.getUser().getId()) 
+		if(user.getId() != workingDetail.get().getUser().getId()) 
 		{
 			return "badRequestPage";
 		}
@@ -381,6 +401,7 @@ public class HomeController
 			
 			model.addAttribute("importantDateList", user.getImportantDateList());
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			listOfBranchDetails(model);
 			
 			return "myProfile";
 		}
@@ -390,9 +411,9 @@ public class HomeController
 	public String removeWorkingDetail(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
-		WorkingDetail workingDetail = workingDetailService.findById(id);
+		Optional<WorkingDetail> workingDetail = workingDetailService.findById(id);
 		
-		if(user.getId() != workingDetail.getUser().getId())
+		if(user.getId() != workingDetail.get().getUser().getId())
 		{
 			String message = "Something went wrong. Contact Admin!!!";
 			model.addAttribute("message", message);
@@ -408,6 +429,7 @@ public class HomeController
 			
 			model.addAttribute("importantDateList", user.getImportantDateList());
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			listOfBranchDetails(model);
 			
 			return "myProfile";
 		}
@@ -437,6 +459,7 @@ public class HomeController
 		model.addAttribute("importantDateList", user.getImportantDateList());
 		model.addAttribute("listOfWorkingDetails", true);
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
+		listOfBranchDetails(model);
 
 		return "myProfile";
 	}
@@ -463,6 +486,7 @@ public class HomeController
 			
 			model.addAttribute("invalidImportantDateField", true);
 			model.addAttribute("feedBack", feedBack);
+			listOfBranchDetails(model);
 
 			return "myProfile";
 		}
@@ -492,6 +516,7 @@ public class HomeController
 		model.addAttribute("importantDateList", user.getImportantDateList());
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
 		model.addAttribute("listOfImportantDates", true);
+		listOfBranchDetails(model);
 
 		return "redirect:listOfImportantDates";
 	}
@@ -568,6 +593,7 @@ public class HomeController
 		// Working Details tab
 		model.addAttribute("listOfWorkingDetails", true);
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
+		listOfBranchDetails(model);
 		
 		return "myProfile";
 	}
@@ -576,9 +602,9 @@ public class HomeController
 	public String updateImportantDate(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
-		ImportantDate importantDate = importantDateService.findById(id);
+		Optional<ImportantDate> importantDate = importantDateService.findById(id);
 		
-		if(user.getId() != importantDate.getUser().getId()) 
+		if(user.getId() != importantDate.get().getUser().getId()) 
 		{
 			return "badRequestPage";
 		}
@@ -591,6 +617,7 @@ public class HomeController
 			
 			model.addAttribute("importantDateList", user.getImportantDateList());
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			listOfBranchDetails(model);
 			
 			return "myProfile";
 		}
@@ -600,9 +627,9 @@ public class HomeController
 	public String removeImportantDate(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
-		ImportantDate importantDate = importantDateService.findById(id);
+		Optional<ImportantDate> importantDate = importantDateService.findById(id);
 		
-		if(user.getId() != importantDate.getUser().getId())
+		if(user.getId() != importantDate.get().getUser().getId())
 		{
 			String message = "Something went wrong. Contact Admin!!!";
 			model.addAttribute("message", message);
@@ -615,7 +642,7 @@ public class HomeController
 			
 			try
 			{
-				String name = importantDate.getCardType() + importantDate.getCardExtention();
+				String name = importantDate.get().getCardType() + importantDate.get().getCardExtention();
 				String filePath = createOrRetrieve( PATH + user.getId());
 				Files.delete(Paths.get(filePath + "/" + name));
 			}
@@ -630,6 +657,7 @@ public class HomeController
 			
 			model.addAttribute("importantDateList", user.getImportantDateList());
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			listOfBranchDetails(model);
 			
 			return "myProfile";
 		}
@@ -639,7 +667,7 @@ public class HomeController
 	public String updateUserInfo(@ModelAttribute("user") User user, @ModelAttribute("newPassword") String newPassword,
 			Model model) throws Exception
 	{
-		User currentUser = userService.findById(user.getId());
+		Optional<User> currentUser = userService.findById(user.getId());
 
 		if (currentUser == null)
 		{
@@ -651,7 +679,7 @@ public class HomeController
 		/* check email already exists */
 		if (userService.findByEmail(user.getEmail()) != null)
 		{
-			if (userService.findByEmail(user.getEmail()).getId() != currentUser.getId())
+			if (userService.findByEmail(user.getEmail()).getId() != currentUser.get().getId())
 			{
 				model.addAttribute("emailExists", true);
 				return "myProfile";
@@ -661,7 +689,7 @@ public class HomeController
 		/* check username already exists */
 		if (userService.findByUsername(user.getUsername()) != null)
 		{
-			if (userService.findByUsername(user.getUsername()).getId() != currentUser.getId())
+			if (userService.findByUsername(user.getUsername()).getId() != currentUser.get().getId())
 			{
 				model.addAttribute("usernameExists", true);
 				return "myProfile";
@@ -673,7 +701,7 @@ public class HomeController
 		{
 			if (userService.findByPhone(user.getPhone()) != null)
 			{
-				if (userService.findByPhone(user.getPhone()).getId() != currentUser.getId())
+				if (userService.findByPhone(user.getPhone()).getId() != currentUser.get().getId())
 				{
 					model.addAttribute("phoneExists", true);
 					return "myProfile";
@@ -692,10 +720,10 @@ public class HomeController
 		if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals(""))
 		{
 			BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
-			String dbPassword = currentUser.getPassword();
+			String dbPassword = currentUser.get().getPassword();
 			if (passwordEncoder.matches(user.getPassword(), dbPassword))
 			{
-				currentUser.setPassword(passwordEncoder.encode(newPassword));
+				currentUser.get().setPassword(passwordEncoder.encode(newPassword));
 			} else
 			{
 				model.addAttribute("incorrectPassword", true);
@@ -704,13 +732,13 @@ public class HomeController
 			}
 		}
 
-		currentUser.setFirstName(user.getFirstName());
-		currentUser.setLastName(user.getLastName());
-		currentUser.setUsername(user.getUsername());
-		currentUser.setEmail(user.getEmail());
-		currentUser.setPhone(user.getPhone());
+		currentUser.get().setFirstName(user.getFirstName());
+		currentUser.get().setLastName(user.getLastName());
+		currentUser.get().setUsername(user.getUsername());
+		currentUser.get().setEmail(user.getEmail());
+		currentUser.get().setPhone(user.getPhone());
 
-		userService.save(currentUser);
+		userService.save(currentUser.get());
 
 		model.addAttribute("updateSuccess", true);
 		model.addAttribute("user", currentUser);
@@ -718,8 +746,9 @@ public class HomeController
 		model.addAttribute("workingDetailList", user.getWorkingDetailList());
 		model.addAttribute("listOfWorkingDetails", true);
 		model.addAttribute("listOfImportantDates", true);
+		listOfBranchDetails(model);
 
-		UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.getUsername());
+		UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.get().getUsername());
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
 				userDetails.getAuthorities());
@@ -728,5 +757,72 @@ public class HomeController
 		// model.addAttribute("orderList", user.getOrderList());
 
 		return "redirect:myProfile";
+	}
+	
+	@RequestMapping(value = "/addPersonalDetail", method = RequestMethod.POST)
+	public String addPersonalDetailPost(@ModelAttribute("user") User user,
+			Principal principal, Model model) throws Exception
+	{
+		User currentUser = userService.findByUsername(principal.getName());
+		
+		MultipartFile profilePicture = user.getProfilePicture();
+		String profilePictureExtention = getExtensionOfFile(profilePicture);
+		System.out.println("Original FileName " + profilePicture.getOriginalFilename());
+		System.out.println("Original contentType " + profilePicture.getContentType());
+		
+		// Check for Blank Fields || Check for Blank document.
+		/*if(isImportantDateFieldsInvalid(user, profilePicture, feedBack))
+		{
+			model.addAttribute("classActiveImportantDates", true);
+			model.addAttribute("user", user);
+			model.addAttribute("importantDateList", user.getImportantDateList());
+			model.addAttribute("workingDetailList", user.getWorkingDetailList());
+			model.addAttribute("addImportantDate", true);
+			
+			model.addAttribute("invalidImportantDateField", true);
+			model.addAttribute("feedBack", feedBack);
+
+			return "myProfile";
+		}
+*/		
+		user.setProfilePictureExtension(profilePictureExtention);
+		// Save the Important Table.
+		currentUser.setGender(user.getGender());
+		currentUser.setMaritialStatus(user.getMaritialStatus());
+		currentUser.setDateOfBirth(user.getDateOfBirth());
+		currentUser.setEthnicity(user.getEthnicity());
+		currentUser.setLivingAddress(user.getLivingAddress());
+		currentUser.setFromBranch(user.getFromBranch());
+		currentUser.setTechnology(user.getTechnology());
+		currentUser.setReffer(user.getReffer());
+		currentUser.setDateOfJoining(user.getDateOfJoining());
+		currentUser.setEmployeeStatus(user.getEmployeeStatus());
+		currentUser.setReportingManager(user.getReportingManager());
+		currentUser.setPayrollId(user.getPayrollId());
+		currentUser.setPayrollStartDate(user.getPayrollStartDate());
+		currentUser.setProfilePictureExtension(user.getProfilePictureExtension());
+
+		try
+		{
+			byte[] bytes = profilePicture.getBytes();
+			String name = currentUser.getUsername() + profilePictureExtention;
+			String filePath = createOrRetrieve( PATH + currentUser.getId());
+			
+			BufferedOutputStream stream = new BufferedOutputStream(
+					new FileOutputStream(new File(filePath + "/" + name)));
+			stream.write(bytes);
+			stream.close();
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+
+		userService.save(currentUser);
+		
+		model.addAttribute("currentDesignation", currentUser.getWorkingDetailList().get(0).getDesignation());
+		listOfBranchDetails(model);
+
+		return "redirect:myProfilePage";
 	}
 }

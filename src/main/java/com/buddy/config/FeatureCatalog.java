@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,9 @@ public class FeatureCatalog
 {
 	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 	
-	private static File createOrRetrieve(final String target) throws IOException
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(FeatureCatalog.class.getName());
+	
+	public static File createOrRetrieve(final String target) throws IOException
 	{
 	    final Path path = Paths.get(target);
 

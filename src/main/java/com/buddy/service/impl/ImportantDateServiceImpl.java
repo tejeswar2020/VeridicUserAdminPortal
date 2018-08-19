@@ -1,5 +1,7 @@
 package com.buddy.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +18,13 @@ public class ImportantDateServiceImpl implements ImportantDateService
 	@Autowired
 	private ImportantDateRepository importantDateRepository;
 
-	public ImportantDate findById(Long id)
+	public Optional<ImportantDate> findById(Long id)
 	{
-		return importantDateRepository.findOne(id);
+		return importantDateRepository.findById(id);
 	}
 
 	public void removeById(Long id)
 	{
-		importantDateRepository.delete(id);
+		importantDateRepository.deleteById(id);
 	}
 }
