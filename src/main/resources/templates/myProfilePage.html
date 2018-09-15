@@ -22,13 +22,14 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
     
       <div class="w3-white w3-text-grey w3-card-4">
         <div class="w3-display-container">
-          <img th:src="@{/image/} + ${user.id} + '/' + ${user.username} + ${user.profilePictureExtension} " style="width:100%" alt="Avatar" />
+          <img th:src="@{https://s3-us-west-2.amazonaws.com/veridicportal/} + ${user.id} + '/' + ${user.username} + ${user.profilePictureExtension} " style="width:100%; height:300px" alt="Avatar" />
           <div class="w3-display-bottomleft w3-container w3-text-black">
             <h2 th:text="${user.firstName} + ' '+ ${user.lastName}"></h2>
           </div>
         </div>
         <div class="w3-container">
           <p></p>
+          <p><i class="glyphicon glyphicon-tree-deciduous fa-fw w3-margin-right w3-large w3-text-teal"></i><span th:text="'Emp ID: V' + ${user.id}"></span></p>
           <p><i class="fa fa-briefcase fa-fw w3-margin-right w3-large w3-text-teal"></i><span th:text="${currentDesignation}"></span></p>
           <p><i class="fa fa-home fa-fw w3-margin-right w3-large w3-text-teal"></i><span th:text="${user.livingAddress}"></span></p>
           <p><i class="fa fa-envelope fa-fw w3-margin-right w3-large w3-text-teal"></i><span th:text="${user.email}"></span></p>
@@ -88,7 +89,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
          <div class="w3-container" th:each="workingDetail : ${workingDetailList}">
             <h5 class="w3-opacity"><b><span th:text="${workingDetail.designation} + ' / ' + ${workingDetail.clientName}"></span></b></h5>
             <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw w3-margin-right"></i><span th:text="${workingDetail.startDate} + ' - '"></span><span class="w3-tag w3-teal w3-round">Current</span></h6>
-            <p>Lorem ipsum dolor sit amet. Praesentium magnam consectetur vel in deserunt aspernatur est reprehenderit sunt hic. Nulla tempora soluta ea et odio, unde doloremque repellendus iure, iste.</p>
+            <p>Responsibilities Need to be updated.</p>
             <hr/>
          </div>
       </div>
@@ -126,7 +127,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
 			</table>
       </div><!-- End Important Dates -->
 
-      <div class="w3-container w3-card w3-white">
+      <!-- <div class="w3-container w3-card w3-white">
          <h2 class="w3-text-grey w3-padding-16"><i class="fa fa-certificate fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Education</h2>
          <div class="w3-container">
             <h5 class="w3-opacity"><b>W3Schools.com</b></h5>
@@ -134,7 +135,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
             <p>Web Development! All I need to know in one place</p>
             <hr/>
          </div>
-      </div>
+      </div> -->
 
     <!-- End Right Column -->
     </div>

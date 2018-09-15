@@ -72,9 +72,11 @@ public class HomeController
 	@Autowired
 	private ImportantDateService importantDateService;
 	
-	private static String PATH = "src/main/resources/static/image/";
+	private static String PATH = "/image/";
 	
 	private static String EMPTY = " should not be empty.";
+	
+	private static S3BucketUtility s3Bucket = new S3BucketUtility();
 	
 	private static StringBuilder feedBack =  new StringBuilder();
 
@@ -386,9 +388,9 @@ public class HomeController
 	public String updateWorkingDetail(@ModelAttribute("id") Long id, Principal principal, Model model)
 	{
 		User user = userService.findByUsername(principal.getName());
-		Optional<WorkingDetail> workingDetail = workingDetailService.findById(id);
+		WorkingDetail workingDetail = workingDetailService.findById(id).get();
 		
-		if(user.getId() != workingDetail.get().getUser().getId()) 
+		if(user.getId() != workingDetail.getUser().getId()) 
 		{
 			return "badRequestPage";
 		}
@@ -431,7 +433,7 @@ public class HomeController
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
 			listOfBranchDetails(model);
 			
-			return "myProfile";
+			return "redirect:listOfWorkingDetails";
 		}
 	}
 	
@@ -472,6 +474,8 @@ public class HomeController
 		
 		MultipartFile cardDocument = importantDate.getCardDocument();
 		String cardDocumentExtention = getExtensionOfFile(cardDocument);
+		String orgFileName = user.getId().toString() + "/" + importantDate.getCardType() + cardDocumentExtention;
+		System.out.println("created FileName " + orgFileName);
 		System.out.println("Original FileName " + cardDocument.getOriginalFilename());
 		System.out.println("Original contentType " + cardDocument.getContentType());
 		
@@ -494,23 +498,18 @@ public class HomeController
 		importantDate.setCardExtention(cardDocumentExtention);
 		// Save the Important Table.
 		userService.updateImportantDates(user, importantDate);
-		
-		try
+
+		try 
 		{
-			byte[] bytes = cardDocument.getBytes();
-			String name = importantDate.getCardType() + cardDocumentExtention;
-			String filePath = createOrRetrieve( PATH + user.getId());
-			
-			BufferedOutputStream stream = new BufferedOutputStream(
-					new FileOutputStream(new File(filePath + "/" + name)));
-			stream.write(bytes);
-			stream.close();
+			uploadFileToCloud(user.getId().toString(),
+					orgFileName,
+					cardDocument);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			System.out.println("failed to upload");
 		}
-
+		
 		model.addAttribute("classActiveImportantDates", true);
 		model.addAttribute("user", user);
 		model.addAttribute("importantDateList", user.getImportantDateList());
@@ -519,6 +518,30 @@ public class HomeController
 		listOfBranchDetails(model);
 
 		return "redirect:listOfImportantDates";
+	}
+
+	private File convert(MultipartFile file) throws IOException 
+	{
+	    File convFile = new File(file.getOriginalFilename());
+	    convFile.createNewFile();
+	    FileOutputStream fos = new FileOutputStream(convFile);
+	    fos.write(file.getBytes());
+	    fos.close();
+	    return convFile;
+	}
+	
+	private void uploadFileToCloud(String folderName, String fileName, MultipartFile cardDocument)
+	{
+		try
+		{
+			s3Bucket.uploadFile(folderName,
+								fileName,
+								convert(cardDocument));
+		}
+		catch (Exception e) 
+		{
+			System.err.println(" failed to upload file. ");
+		}
 	}
 	
 	public static String getExtensionOfFile(MultipartFile file)
@@ -538,8 +561,15 @@ public class HomeController
 	
 	private boolean isImportantDateFieldsInvalid(ImportantDate importantDate, MultipartFile cardDocument, StringBuilder feedBack)
 	{
-		if (importantDate.getCardType().trim().equals("") ||
-			importantDate.getCardNumber().trim().equals("") )
+		if (null == importantDate.getCardType() ||
+		    null == importantDate.getCardNumber() )
+		{
+			feedBack.setLength(0);
+			feedBack.append("Card Type/Number should not be empty Field.");
+			return true;
+		}
+		else if (importantDate.getCardType().trim().equals("") ||
+			     importantDate.getCardNumber().trim().equals("") )
 		{
 			feedBack.setLength(0);
 			feedBack.append("Card Type/Number should not be empty Field.");
@@ -611,7 +641,7 @@ public class HomeController
 		else
 		{
 			model.addAttribute("user", user);
-			model.addAttribute("importantDate", importantDate);
+			model.addAttribute("importantDate", importantDate.get());
 			model.addAttribute("classActiveImportantDates", true);
 			model.addAttribute("addImportantDate", true);
 			
@@ -640,17 +670,8 @@ public class HomeController
 			model.addAttribute("user", user);
 			importantDateService.removeById(id);
 			
-			try
-			{
-				String name = importantDate.get().getCardType() + importantDate.get().getCardExtention();
-				String filePath = createOrRetrieve( PATH + user.getId());
-				Files.delete(Paths.get(filePath + "/" + name));
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String fileName = user.getId().toString() + "/" + importantDate.get().getCardType() + importantDate.get().getCardExtention();
+			s3Bucket.deleteFile(user.getId().toString(), fileName);
 			
 			model.addAttribute("classActiveImportantDates", true);
 			model.addAttribute("listOfImportantDates", true);
@@ -659,7 +680,7 @@ public class HomeController
 			model.addAttribute("workingDetailList", user.getWorkingDetailList());
 			listOfBranchDetails(model);
 			
-			return "myProfile";
+			return "redirect:listOfImportantDates";
 		}
 	}
 
@@ -802,22 +823,9 @@ public class HomeController
 		currentUser.setPayrollStartDate(user.getPayrollStartDate());
 		currentUser.setProfilePictureExtension(user.getProfilePictureExtension());
 
-		try
-		{
-			byte[] bytes = profilePicture.getBytes();
-			String name = currentUser.getUsername() + profilePictureExtention;
-			String filePath = createOrRetrieve( PATH + currentUser.getId());
-			
-			BufferedOutputStream stream = new BufferedOutputStream(
-					new FileOutputStream(new File(filePath + "/" + name)));
-			stream.write(bytes);
-			stream.close();
-		}
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-
+		String fileName = user.getId().toString() + "/" + currentUser.getUsername() + profilePictureExtention;
+		uploadFileToCloud(user.getId().toString(), fileName, profilePicture);
+		
 		userService.save(currentUser);
 		
 		model.addAttribute("currentDesignation", currentUser.getWorkingDetailList().get(0).getDesignation());

@@ -6,7 +6,7 @@
 
 	<groupId>com.javasampleapproach.wardeployment</groupId>
 	<artifactId>VeridicUserPortal</artifactId>
-	<version>0.0.1</version>
+	<version>3.2.1</version>
 	<packaging>war</packaging>
 
 	<name>VeridicUserPortal</name>
@@ -66,11 +66,11 @@
 			<artifactId>spring-context-support</artifactId>
 		</dependency>
 
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
-		</dependency> -->
+		</dependency>
 		
 		<!-- add following dependency under dependencies section -->
 	   <dependency>
@@ -115,19 +115,25 @@
 		    <artifactId>aws-java-sdk-s3</artifactId>
 		    <version>1.11.390</version>
 		</dependency>
+
+		<dependency>
+		    <groupId>com.box</groupId>
+		    <artifactId>box-java-sdk</artifactId>
+		    <version>2.23.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin> -->
-			<plugin>
+			</plugin>
+			<!-- <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>appengine-maven-plugin</artifactId>
                 <version>1.3.1</version>
-            </plugin>
+            </plugin> -->
 		</plugins>
 	</build>
 
